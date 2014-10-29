@@ -18,17 +18,16 @@ import java.util.ArrayList;
 public class Breakout extends JFrame implements MouseMotionListener{
 	private GameCanvas gc;
 	private Game gm;
-	private final Breakout game = this;
 	
 	private ComponentAdapter cl = new ComponentAdapter(){
 		@Override
 		public void componentResized(ComponentEvent evt){
-			gm.getPaddle().adjust(game);
-			gm.getBall().adjust(game);
+			gm.getPaddle().adjust(gc);
+			gm.getBall().adjust(gc);
 			
 			while( gm.getPaddle().getY() > getHeight() ){
-				gm.getPaddle().adjust(game);
-				gm.getBall().adjust(game);
+				gm.getPaddle().adjust(gc);
+				gm.getBall().adjust(gc);
 			}
 		}
 	};
@@ -41,17 +40,9 @@ public class Breakout extends JFrame implements MouseMotionListener{
 		setLayout(new BorderLayout());
 		
 		addComponentListener(cl);
-		ArrayList<Brick> arrangement = new ArrayList<Brick>();
 		
-		Color[] cols = {Color.BLUE,Color.GREEN};
-		
-		for(int y = 50, col = 1; y < 250; y += 12, col = (col+1) % 2){
-			for(int x = 100; x < 400; x += 25, col = (col+1) % 2){
-				arrangement.add( new Brick(cols[col],x,y) );	
-			}
-		}
-
-		gm = new Game( arrangement );
+ 
+		gm = new Game( generateBrickField() , 3 );
 		
 		gc = new GameCanvas(gm);
 		
@@ -61,6 +52,18 @@ public class Breakout extends JFrame implements MouseMotionListener{
 		setVisible(true);
 		
 		addMouseMotionListener(this);
+	}
+	public ArrayList<Brick> generateBrickField(){
+		ArrayList<Brick> arrangement = new ArrayList<Brick>();
+		
+		Color[] cols = {Color.BLUE,Color.GREEN};
+		
+		for(int y = 50, col = 1; y < 250; y += 12, col = (col+1) % 2){
+			for(int x = 100; x < 400; x += 25, col = (col+1) % 2){
+				arrangement.add( new Brick(cols[col],x,y) );	
+			}
+		}
+		return arrangement;
 	}
 	public void mouseMoved(MouseEvent evt){
 		if(!paused){
@@ -85,8 +88,8 @@ public class Breakout extends JFrame implements MouseMotionListener{
 	
 	public void animate(){
 		Ball ball = gm.getBall();
-		int vel_x = 6;
-		int vel_y = 6;
+		int vel_x = 4;
+		int vel_y = 4;
 		has_touched = false;
 		while(true){
 			if( touching_horiz_edge(ball) && touching_top(ball) ){
@@ -113,14 +116,25 @@ public class Breakout extends JFrame implements MouseMotionListener{
 			if( touching_bottom(ball) ){
 				vel_x = 0;
 				vel_y = 0;
-				gm.getPaddle().adjust(this);
-				ball.adjust(this);
+				if(gm.getBalls() == 0){
+					if(JOptionPane.showConfirmDialog(this,"You lose! Try again?") == JOptionPane.YES_OPTION){
+						gm = new Game( generateBrickField() , 3 );
+						gc = new GameCanvas( gm );
+						repaint();
+					}else{
+						break;
+					}
+				}else{
+					gm.updateBalls(gm.getBalls() - 1);
+				}
+				gm.getPaddle().adjust(gc);
+				ball.adjust(gc);
 				paused = true;
 				try{
 					Thread.sleep(2500);
 				}catch(Exception e){}
-				vel_x = 6;
-				vel_y = 6;
+				vel_x = 4;
+				vel_y = 4;
 				paused = false;
 				has_touched = true;
 			}
@@ -128,49 +142,11 @@ public class Breakout extends JFrame implements MouseMotionListener{
 				if(!has_touched){
 					if( vel_x > 0 ){
 						if( ball.getX() < gm.getPaddle().getX() + (Paddle.PADDLE_WIDTH / 2) ){
-							if( ball.getX() < gm.getPaddle().getX() + (Paddle.PADDLE_WIDTH / 4) ){
-								vel_x = (int) -vel_x / 2;
-								if(vel_x == 0){
-									vel_x = 1;
-								}else if(vel_x > 1){
-									vel_x++;
-								}else{
-									vel_x--;
-								}
-							}
-							if( ball.getX() > gm.getPaddle().getX() + (Paddle.PADDLE_WIDTH / 4) ){
-								vel_x = -vel_x;
-								if(vel_x == 0){
-									vel_x = 1;
-								}else if(vel_x > 1){
-									vel_x++;
-								}else{
-									vel_x--;
-								}
-							}
+							vel_x = -vel_x;
 						}
 					}else if( vel_x < 0 ){
 						if( ball.getX() > gm.getPaddle().getX() + (Paddle.PADDLE_WIDTH / 2) ){
-							if( ball.getX() < gm.getPaddle().getX() + (2*(Paddle.PADDLE_WIDTH / 4)) ){
-								vel_x = (int) -vel_x / 2;
-								if(vel_x == 0){
-									vel_x = 1;
-								}else if(vel_x > 1){
-									vel_x++;
-								}else{
-									vel_x--;
-								}
-							}
-							if( ball.getX() > gm.getPaddle().getX() + (2*(Paddle.PADDLE_WIDTH / 4)) ){
-								vel_x = -vel_x;
-								if(vel_x == 0){
-									vel_x = 1;
-								}else if(vel_x > 1){
-									vel_x++;
-								}else{
-									vel_x--;
-								}
-							}
+							vel_x = -vel_x;
 						}
 					}else;
 					vel_y = -vel_y;
@@ -181,23 +157,23 @@ public class Breakout extends JFrame implements MouseMotionListener{
 			if( (!touching_horiz_edge(ball) && !touching_top(ball) && !touching_bottom(ball) && !touching_paddle(ball)) && has_touched){
 				has_touched = false;
 			}
-			
+			boolean rmvd = false;
 			for( Brick brk : gm.getBricks() ){
-				boolean rmvd = false;
 				if( touching_brick ( ball, brk ) ) {
 					gm.cueForRemoval( brk );
 					rmvd = true;
+					break;
 				}
-				if(rmvd){
-					vel_y = -vel_y;
-					vel_x = -vel_x;
-				}
+			}
+			if(rmvd){
+				vel_y = -vel_y;
+				vel_x = -vel_x;
 			}
 			if(gm.getBricks().size() == 0){
 				vel_x = 0;
 				vel_y = 0;
-				gm.getPaddle().adjust(this);
-				gm.getBall().adjust(this);
+				gm.getPaddle().adjust(gc);
+				gm.getBall().adjust(gc);
 				JOptionPane.showMessageDialog(this,"Congrats! You win!");
 				break;
 			}
@@ -212,6 +188,7 @@ public class Breakout extends JFrame implements MouseMotionListener{
 		System.exit(0);
 	}
 	private boolean touching_brick(Ball b, Brick brk){
+		int yedge = b.getY();
 		int yedge_far = b.getY() + 10;
 		int xedge = b.getX();
 		int xedge_far = b.getX() + 10;
@@ -220,7 +197,7 @@ public class Breakout extends JFrame implements MouseMotionListener{
 		int minx = brk.getX();
 		int maxx = brk.getX() + Brick.BRICK_WIDTH;
 		
-		if((yedge_far >= padymin && yedge_far <= padymax) && ((xedge >= minx && xedge <= maxx) || xedge_far >= minx && xedge_far <= maxx)){
+		if(((yedge_far >= padymin && yedge_far <= padymax) || (yedge >= padymin && yedge <= padymax)) && ((xedge >= minx && xedge <= maxx) || xedge_far >= minx && xedge_far <= maxx)){
 			return true;
 		}
 		return false;

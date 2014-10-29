@@ -3,7 +3,7 @@ package steve.breakout.specs;
 import steve.breakout.framework.*;
 import java.awt.Graphics;
 import java.awt.Color;
-import javax.swing.JFrame;
+import javax.swing.JComponent;
 
 public class Ball extends Sprite {
 	private Paddle p;
@@ -11,7 +11,7 @@ public class Ball extends Sprite {
 		super(0, 0);
 		this.p = p;
 	}
-	public void adjust(JFrame jf){
+	public void adjust(JComponent jf){
 		move( p.getX() + (Paddle.PADDLE_WIDTH / 2) - 5, p.getY() - Paddle.PADDLE_HEIGHT); //Paddle is already adjusted.
 	}
 	public void paint(Graphics grfx){

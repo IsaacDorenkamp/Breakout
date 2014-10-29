@@ -1,0 +1,19 @@
+package steve.breakout.specs;
+
+import steve.breakout.framework.*;
+import java.awt.Graphics;
+import javax.swing.JFrame;
+
+public class Ball extends Sprite {
+	private Paddle p;
+	public Ball(Paddle p){
+		super(0, 0);
+		this.p = p;
+	}
+	public void adjust(JFrame jf){
+		move( p.getX() + 20, p.getY() - 10); //Paddle is already adjusted.
+	}
+	public void paint(Graphics grfx){
+		grfx.fillOval(getX(),getY(),10,10);
+	}
+}

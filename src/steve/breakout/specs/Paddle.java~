@@ -1,0 +1,17 @@
+package steve.breakout.specs;
+
+import steve.breakout.framework.*;
+import java.awt.Graphics;
+import javax.swing.JFrame;
+
+public class Paddle extends Sprite {
+	public Paddle(){
+		super(0,0);
+	}
+	public void adjust(JFrame jf){
+		move( (jf.getWidth() / 2) - 25, Sprite.getWorldY(25, jf.getHeight()) );
+	}
+	public void paint(Graphics grfx){
+		grfx.fillRect(getX(), getY(),50,10);
+	}
+}

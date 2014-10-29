@@ -1,0 +1,15 @@
+package steve.breakout.game;
+
+import steve.breakout.specs.*;
+
+public class Game {
+	private Paddle pad = new Paddle();
+	private Ball ball = new Ball(pad);
+	public Game(){ }
+	public Paddle getPaddle(){
+		return pad;
+	}
+	public Ball getBall(){
+		return ball;
+	}
+}

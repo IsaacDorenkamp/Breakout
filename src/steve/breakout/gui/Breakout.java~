@@ -1,0 +1,152 @@
+package steve.breakout.gui;
+
+import steve.breakout.game.Game;
+import steve.breakout.specs.Paddle;
+import steve.breakout.specs.Ball;
+
+import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.Color;
+
+public class Breakout extends JFrame implements MouseMotionListener{
+	private GameCanvas gc;
+	private Game gm;
+	private final Breakout game = this;
+	
+	private ComponentAdapter cl = new ComponentAdapter(){
+		@Override
+		public void componentResized(ComponentEvent evt){
+			gm.getPaddle().adjust(game);
+			gm.getBall().adjust(game);
+		}
+	};
+	
+	public Breakout() {
+		super("Breakout!");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setSize(200,200);
+		getContentPane().setBackground(Color.BLACK);
+		setLayout(new BorderLayout());
+		
+		addComponentListener(cl);
+		addMouseMotionListener(this);
+
+		gm = new Game();
+		gc = new GameCanvas(gm);
+		
+		repaint();
+		
+		add(gc, BorderLayout.CENTER);
+		setVisible(true);
+		gm.getBall().move(10,10);
+		repaint();
+	}
+	public void mouseMoved(MouseEvent evt){
+		Paddle p = gm.getPaddle();
+		int pos = p.getX();
+		
+		if( pos == 0 ){
+			if(evt.getX() < pos)
+				return;
+		}
+		if(evt.getX() - 25 >= getWidth() - 25){
+				return;
+		}
+		
+		p.move(evt.getX() - 25, p.getY());
+		repaint();
+	}
+	public void mouseDragged(MouseEvent evt){}
+	
+	private boolean paused = false;
+	
+	public void animate(){
+		Ball ball = gm.getBall();
+		int vel_x = 3;
+		int vel_y = 3;
+		boolean has_touched = false;
+		while(true){
+			if( touching_horiz_edge(ball) ){
+				if(!has_touched){
+					vel_x = -vel_x;
+				}
+			}
+			if( touching_top(ball) ){
+				if(!has_touched){
+					vel_y = -vel_y;
+				}
+			}
+			if( touching_bottom(ball) ){
+				vel_x = 0;
+				vel_y = 0;
+				ball.adjust(this);
+				gm.getPaddle().adjust(this);
+				try{
+					Thread.sleep(2500);
+				}catch(Exception e){}
+				vel_x = 3;
+				vel_y = 3;
+			}
+			if( touching_paddle(ball) ){
+				if(!has_touched){
+					vel_y = -vel_y;
+				}
+			}
+			
+			if( (!touching_horiz_edge(ball) && !touching_top(ball) && !touching_bottom(ball) && !touching_paddle(ball)) && has_touched){
+				has_touched = false;
+			}
+			
+			ball.move(ball.getX() + vel_x, ball.getY() - vel_y);
+			try{
+				Thread.sleep(25);
+			}catch(Exception e){} //Can ignore an exception.
+			repaint();
+		}
+	}
+	private boolean touching_horiz_edge(Ball b){
+		int xedge = b.getX();
+		int xedge_far = b.getX()+10;
+		if (xedge_far >= getWidth() || xedge <= 0){
+			return true;
+		}
+		return false;
+	}
+	private boolean touching_top(Ball b){
+		int yedge = b.getY();
+		if (yedge <= 0){
+			return true;
+		}
+		return false;
+	}
+	private boolean touching_bottom(Ball b){
+		int yedge_far = b.getY() + 10;
+		if (yedge_far >= gc.getHeight()){
+			return true;
+		}
+		return false;
+	}
+	private boolean touching_paddle(Ball b){
+		int yedge_far = b.getY() + 10;
+		int xedge = b.getX();
+		int padymin = gm.getPaddle().getY();
+		int padymax = gm.getPaddle().getY() + 10;
+		int minx = gm.getPaddle().getX();
+		int maxx = gm.getPaddle().getX() + 50;
+		
+		if(yedge_far >= padymin && yedge_far <= padymax){
+			if(xedge >= minx && xedge <= maxx){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public static void main(String[] args){
+		new Breakout().animate();
+	}
+}

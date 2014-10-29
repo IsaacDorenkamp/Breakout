@@ -43,9 +43,13 @@ public class Breakout extends JFrame implements MouseMotionListener{
 		addComponentListener(cl);
 		ArrayList<Brick> arrangement = new ArrayList<Brick>();
 		
-		arrangement.add( new Brick(Color.BLUE,100,100) );
-		arrangement.add( new Brick(Color.GREEN,150,100) );
-		arrangement.add( new Brick(Color.YELLOW,200,100) );
+		Color[] cols = {Color.BLUE,Color.GREEN};
+		
+		for(int y = 50, col = 1; y < 250; y += 12, col = (col+1) % 2){
+			for(int x = 100; x < 400; x += 25, col = (col+1) % 2){
+				arrangement.add( new Brick(cols[col],x,y) );	
+			}
+		}
 
 		gm = new Game( arrangement );
 		
@@ -210,6 +214,7 @@ public class Breakout extends JFrame implements MouseMotionListener{
 	private boolean touching_brick(Ball b, Brick brk){
 		int yedge_far = b.getY() + 10;
 		int xedge = b.getX();
+		int xedge_far = b.getX() + 10;
 		int padymin = brk.getY();
 		int padymax = brk.getY() + Brick.BRICK_HEIGHT;
 		int minx = brk.getX();

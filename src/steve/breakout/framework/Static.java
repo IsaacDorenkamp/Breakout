@@ -11,4 +11,10 @@ public abstract class Static implements GameObject{
 		this.y = y;
 	}
 	public abstract void paint(Graphics grfx);
+	public int getX(){
+		return x;
+	}
+	public int getY(){
+		return y;
+	}
 }

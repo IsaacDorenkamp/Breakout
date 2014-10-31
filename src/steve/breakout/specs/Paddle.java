@@ -6,7 +6,7 @@ import java.awt.Color;
 import javax.swing.JComponent;
 
 public class Paddle extends Sprite {
-	public static final int PADDLE_WIDTH = 75;
+	public static final int PADDLE_WIDTH = 50;
 	public static final int PADDLE_HEIGHT = 10;
 	public Paddle(){
 		super(0,0);

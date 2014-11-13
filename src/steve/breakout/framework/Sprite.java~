@@ -30,7 +30,7 @@ public abstract class Sprite implements GameObject{
 		move(x,y); //Y is local...
 	}
 
-	public static int getWorldY(int cartY, int world_height){
+	public static final int getWorldY(int cartY, int world_height){
 		return world_height - cartY;
 	}
 

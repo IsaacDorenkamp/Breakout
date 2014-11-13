@@ -14,11 +14,21 @@ public class GameCanvas extends JComponent{
 	public GameCanvas(Game g){
 		this.g = g;
 	}
+	public void setGame( Game gm ){
+		g = gm;
+	}
 	@Override
 	public void paintComponent(Graphics grfx){
 		grfx.setColor(Color.WHITE);
 		Paddle p = g.getPaddle();
 		Ball b = g.getBall();
+		
+		for(Powerup pow : g.getCuedPower()){
+			g.getPowers().remove(pow);
+		}
+		for(Powerup pow : g.getPowers()){
+			pow.paint(grfx);
+		}
 		
 		grfx.setColor(Color.GRAY);
 		int x = getWidth() - (HUD_WIDTH + 10);
@@ -29,6 +39,7 @@ public class GameCanvas extends JComponent{
 		
 		p.paint(grfx);
 		b.paint(grfx);
+		
 		for( Brick br : g.getCued() ){
 			g.getBricks().remove(br);
 		}

@@ -7,11 +7,18 @@ public class Game {
 	private Paddle pad = new Paddle();
 	private Ball ball = new Ball(pad);
 	private int balls;
-	private ArrayList<Brick> bricks;
+	private ArrayList<Brick> bricks = new ArrayList<Brick>();
 	private ArrayList<Brick> toRemove = new ArrayList<Brick>();
-	public Game(ArrayList<Brick> brks, int balls){ 
-		bricks = brks;
+	
+	private ArrayList<Powerup> pw_inplay;
+	private ArrayList<Powerup> pwToRemove = new ArrayList<Powerup>();
+	
+	public Game(int balls){ 
+		pw_inplay = new ArrayList<Powerup>();
 		this.balls = balls;
+	}
+	public void setBricks(ArrayList<Brick> alb){
+		bricks = alb;
 	}
 	public Paddle getPaddle(){
 		return pad;
@@ -33,5 +40,17 @@ public class Game {
 	}
 	public int getBalls(){
 		return balls;
+	}
+	public void addPowerup(Powerup p){
+		pw_inplay.add(p);
+	}
+	public ArrayList<Powerup> getPowers(){
+		return pw_inplay;
+	}
+	public void cuePowerForRemoval(Powerup p){
+		pwToRemove.add(p);
+	}
+	public ArrayList<Powerup> getCuedPower(){
+		return pwToRemove;
 	}
 }
